@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="CoreBridge">
+  <rect width="96" height="96" rx="18" fill="#0f766e"/>
+  <path d="M24 30h28c13 0 23 8 23 18S65 66 52 66H24V54h27c6 0 11-2 11-6s-5-6-11-6H24V30Z" fill="#ffffff"/>
+  <path d="M20 48c0-16 13-29 29-29h16v12H49c-9 0-17 8-17 17s8 17 17 17h16v12H49c-16 0-29-13-29-29Z" fill="#f59e0b"/>
+</svg>

@@ -1,0 +1,68 @@
+{
+  "name": "n8n-nodes-corebridge",
+  "version": "0.1.0",
+  "description": "n8n community nodes for the CoreBridge V2 API.",
+  "license": "MIT",
+  "author": {
+    "name": "Visual GraphX",
+    "email": "support@visualgraphx.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GraphXCPI/n8n-nodes-corebridge.git"
+  },
+  "homepage": "https://github.com/GraphXCPI/n8n-nodes-corebridge#readme",
+  "keywords": [
+    "n8n-community-node-package",
+    "n8n",
+    "corebridge",
+    "graphx"
+  ],
+  "files": [
+    "dist"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [
+      "dist/credentials/CorebridgeApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/CorebridgeContacts.node.js",
+      "dist/nodes/CorebridgeCustomers.node.js",
+      "dist/nodes/CorebridgeDocuments.node.js",
+      "dist/nodes/CorebridgeOrders.node.js",
+      "dist/nodes/CorebridgeProducts.node.js",
+      "dist/nodes/CorebridgeSales.node.js",
+      "dist/nodes/CorebridgeApiRequest.node.js"
+    ]
+  },
+  "scripts": {
+    "build": "npm run n8n-node:build",
+    "dev": "npx --yes @n8n/node-cli dev",
+    "clean": "rm -rf dist",
+    "lint": "npm run n8n-node:lint",
+    "lint:fix": "npm run n8n-node:lint -- --fix",
+    "public:export": "node scripts/export-public-release.js",
+    "public:scan": "node scripts/scan-public-release.js",
+    "verify:release": "npm run clean && npm run build && npm run lint && npm pack --dry-run",
+    "n8n-node:build": "npx --yes @n8n/node-cli build",
+    "n8n-node:lint": "npx --yes @n8n/node-cli lint",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@n8n/node-cli": "^0.37.4",
+    "@types/node": "^18.0.0",
+    "n8n-workflow": "^2.28.4",
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  },
+  "bugs": {
+    "url": "https://github.com/GraphXCPI/n8n-nodes-corebridge/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}
