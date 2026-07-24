@@ -1,6 +1,6 @@
 # Workflow Compatibility Contract
 
-This is a new package. There are no known saved n8n workflows using it yet.
+The 0.2.0 audit found 21 nodes in inactive CoreBridge test workflows on the GraphX n8n instance. No active workflow uses the package.
 
 Stable identifiers for the first release:
 
@@ -11,9 +11,13 @@ Stable identifiers for the first release:
 | Contacts node type | `n8n-nodes-corebridge.corebridgeContacts` |
 | Customers node type | `n8n-nodes-corebridge.corebridgeCustomers` |
 | Documents node type | `n8n-nodes-corebridge.corebridgeDocuments` |
+| Goals node type | `n8n-nodes-corebridge.corebridgeGoals` |
 | Orders node type | `n8n-nodes-corebridge.corebridgeOrders` |
 | Products node type | `n8n-nodes-corebridge.corebridgeProducts` |
+| Royalty node type | `n8n-nodes-corebridge.corebridgeRoyalty` |
 | Sales node type | `n8n-nodes-corebridge.corebridgeSales` |
 | API request node type | `n8n-nodes-corebridge.corebridgeApiRequest` |
 
-After the package is installed into n8n and used by workflows, treat operation values and parameter names as public API.
+All 45 operation values from 0.1.0 remain present with the same domain and endpoint path. Saved nodes with `jsonBody` and no `bodyMode` execute in JSON compatibility mode. New nodes default to guided fields.
+
+The package adds operations without renaming existing node types, credentials, operation values, or parameters.

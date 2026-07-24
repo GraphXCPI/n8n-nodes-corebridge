@@ -1,82 +1,131 @@
 # CoreBridge V2 API Mapping
 
-Source artifact:
+This file is generated from the normalized contract in `CorebridgeEndpointDefinitions.ts`.
+Run `npm run docs:generate` after changing endpoint metadata.
 
-- `GraphX - System/System & Development/18_Customer_Sites/AlphaGraphics/Idaho Falls/CoreBridge API Document Package/Postman Import JSON/CoreBridge V2 API.postman_collection.json`
-- `CoreBridge_V2_API_Overview_and_Endpoints.pdf`
-- `CreateGenericOrder_API_Package/postman/CreateGenericOrder_Postman_Collection.json`
-- `CreateGenericOrder_API_Package/samples/*.json`
+## Coverage
 
-Do not commit copied source artifacts because they may contain workspace-specific metadata or environment placeholders.
-
-## Source Coverage
-
-- Canonical CoreBridge V2 Postman collection: 42 endpoints.
-- CreateGenericOrder package: 1 endpoint with 5 documented sample payload scenarios.
-- Quick Product endpoints: present in the earlier supplemental Postman copy and referenced by `CreateGenericOrder_API_Package/samples/03_QuickProduct_Reference.json`; kept in the node as additive coverage.
-
-## Auth
-
-CoreBridge uses an API key sent in the `Authorization` header.
-
-Credential:
-
-- `corebridgeApi`
-- `baseUrl`
-- `apiKey`
+- Normalized operations: **88**
+- Body-bearing operations with guided fields: **22**
+- Advanced JSON mode remains available for compatibility and uncommon documented fields.
+- Existing node type names and pre-0.2.0 operation keys remain stable.
 
 ## Domain Nodes
 
-| Source Group | Endpoint | Method | n8n Node | Operation |
+| Domain | n8n Node | Operations |
+| --- | --- | ---: |
+| contacts | CoreBridge Contacts | 11 |
+| customers | CoreBridge Customers | 23 |
+| documents | CoreBridge Documents | 4 |
+| goals | CoreBridge Goals | 7 |
+| orders | CoreBridge Orders | 22 |
+| products | CoreBridge Products | 14 |
+| royalty | CoreBridge Royalty | 2 |
+| sales | CoreBridge Sales | 5 |
+
+## Operation Map
+
+| Domain | Method | Endpoint | n8n Operation | Guided Body |
 | --- | --- | --- | --- | --- |
-| ExContact | `ExContact/Create` | POST | CoreBridge Contacts | `createContact` |
-| ExContact | `ExContact/UpdateContact` | POST | CoreBridge Contacts | `updateContact` |
-| ExContact | `ExContact/SearchContacts_v2` | POST | CoreBridge Contacts | `searchContacts` |
-| ExContact | `ExContact/GetContactsByEmailAddress/{email}` | GET | CoreBridge Contacts | `getContactsByEmail` |
-| ExContact | `ExContact/GetContactById/{contactId}` | GET | CoreBridge Contacts | `getContactById` |
-| ExCustomer | `ExCustomer/CreateCustomer_v2` | POST | CoreBridge Customers | `createCustomer` |
-| ExCustomer | `ExCustomer/UpdateCustomer_v2` | POST | CoreBridge Customers | `updateCustomer` |
-| ExCustomer | `ExCustomer/SearchCustomers_v2` | POST | CoreBridge Customers | `searchCustomers` |
-| ExCustomer | `ExCustomer/GetCustomerById/{accountId}` | GET | CoreBridge Customers | `getCustomerById` |
-| ExCustomer | `ExCustomer/GetCustomerByName/{customerName}` | GET | CoreBridge Customers | `getCustomerByName` |
-| ExCustomer | `ExCustomer/UpdateCustomerName` | POST | CoreBridge Customers | `updateCustomerName` |
-| ExCustomer | `ExCustomer/GetIndustryTypes` | GET | CoreBridge Customers | `getIndustryTypes` |
-| ExCustomer | `ExCustomer/GetAvailableReferralTypes` | GET | CoreBridge Customers | `getReferralTypes` |
-| ExCustomer | `ExCustomer/GetCustomerLocationsByCustomerId/{accountId}` | GET | CoreBridge Customers | `getCustomerLocations` |
-| ExCustomer | `ExCustomer/CreateCustomerLocation` | POST | CoreBridge Customers | `createCustomerLocation` |
-| ExCustomer | `ExCustomer/UpdateCustomerLocation` | POST | CoreBridge Customers | `updateCustomerLocation` |
-| ExCustomerMerge | `ExCustomerMerge/GetCustomerMergeHistoryById` | GET | CoreBridge Customers | `getCustomerMergeHistoryById` |
-| ExCustomerMerge | `ExCustomerMerge/CustomerMergeHistory_v2` | POST | CoreBridge Customers | `searchCustomerMergeHistory` |
-| ExDocument | `ExDocument/OrderStatementByOrderId` | GET | CoreBridge Documents | `getOrderStatement` |
-| ExDocument | `ExDocument/CustomerStatementbyCustomerId` | GET | CoreBridge Documents | `getCustomerStatement` |
-| ExDocument | `ExDocument/WorkOrder` | GET | CoreBridge Documents | `getWorkOrder` |
-| ExDocument | `ExDocument/WorkOrderProduct` | GET | CoreBridge Documents | `getWorkOrderProduct` |
-| ExEstimate | `ExEstimate/Get` | GET | CoreBridge Orders | `getEstimate` |
-| ExEstimate | `ExEstimate/CancelEstimate` | POST | CoreBridge Orders | `cancelEstimate` |
-| ExEstimate | `ExEstimate/ConvertEstimate` | GET | CoreBridge Orders | `convertEstimate` |
-| ExOrder | `ExOrder/CreateGenericOrder` | POST | CoreBridge Orders | `createGenericOrder` |
-| ExOrder | `ExOrder/SearchOrders_v2` | POST | CoreBridge Orders | `searchOrders` |
-| ExOrder | `ExOrder/OrderHistoryTypes` | GET | CoreBridge Orders | `getOrderHistoryTypes` |
-| ExOrderDetail | `ExOrderDetail/GetExOrderByInvoiceNumber` | GET | CoreBridge Orders | `getOrderByInvoiceNumber` |
-| ExOrderDetail | `ExOrderDetail/GetExOrderDetailById` | GET | CoreBridge Orders | `getOrderDetailById` |
-| ExOrderProduct | `ExOrderProduct/` | GET | CoreBridge Products | `getOrderProductById` |
-| ExOrderProduct | `ExOrderProduct/GetAllStatusCBName` | GET | CoreBridge Products | `getAllStatusCbName` |
-| ExOrderProduct | `ExOrderProduct/GetAllStatus` | GET | CoreBridge Products | `getAllStatus` |
-| ExOrderProduct | `ExOrderProduct/UpdateProductStatusForId` | POST | CoreBridge Products | `updateProductStatus` |
-| ExOrderProduct | `ExOrderProduct/GetAvailableSubStatusForStatus` | GET | CoreBridge Products | `getAvailableSubStatus` |
-| ExOrderProduct | `ExOrderProduct/UpdateProductSubStatusForId` | POST | CoreBridge Products | `updateProductSubstatus` |
-| ExOrderProduct | `ExOrderProduct/UpdateOrderProductFollowUpDueDate` | POST | CoreBridge Products | `updateProductFollowUpDueDate` |
-| ExOrderProduct | `ExOrderProduct/UpdateOrderProductDesignDueDate` | POST | CoreBridge Products | `updateProductDesignDueDate` |
-| ExQuickProduct | `ExQuickProduct/Search` | POST | CoreBridge Products | `searchQuickProducts` |
-| ExQuickProduct | `ExQuickProduct/GetById/{quickProductId}` | GET | CoreBridge Products | `getQuickProductById` |
-| ExEmployee | `ExEmployee/GetEmployees` | GET | CoreBridge Sales | `getEmployees` |
-| ExReconciliation | `ExReconciliation/ReconciliationDetailById` | GET | CoreBridge Sales | `getReconciliationDetailById` |
-| ExSalesCenter | `ExSalesCenter/GetLocations` | GET | CoreBridge Sales | `getLocations` |
-| ExSalesCenter | `ExSalesCenter/GetTaxGroups` | GET | CoreBridge Sales | `getTaxGroups` |
-| ExSalesperson | `ExSalesperson/GetSalespersons` | GET | CoreBridge Sales | `getSalespersons` |
+| contacts | GET | `ExContact` | `getContacts` | N/A |
+| contacts | GET | `ExContact/GetContactById/{contactId}` | `getContactById` | N/A |
+| contacts | GET | `ExContact/GetContactsByEmailAddress/{emailAddress}` | `getContactsByEmail` | N/A |
+| contacts | GET | `ExContact/GetContactsModifiedAfterDate/{days}` | `getContactsModifiedAfter` | N/A |
+| contacts | POST | `ExContact/SearchContacts_v2` | `searchContacts` | Yes |
+| contacts | POST | `ExContact/Create` | `createContact` | Yes |
+| contacts | POST | `ExContact/UpdateContact` | `updateContact` | Yes |
+| contacts | POST | `ExContact/UpdateContactTypeForContact` | `updateContactType` | N/A |
+| contacts | POST | `ExContact/CreateContactType` | `createContactType` | Yes |
+| contacts | GET | `ExContact/GetAvailableContactTypes` | `getContactTypes` | N/A |
+| contacts | GET | `ExContact/GetAvailableContactJobAuthority` | `getContactJobAuthorities` | N/A |
+| customers | GET | `ExCustomer` | `getCustomers` | N/A |
+| customers | GET | `ExCustomer/GetCustomerByName/{customerName}` | `getCustomerByName` | N/A |
+| customers | GET | `ExCustomer/GetCustomerById/{accountId}` | `getCustomerById` | N/A |
+| customers | GET | `ExCustomer/GetCustomerLocationsByCustomerId/{accountId}` | `getCustomerLocations` | N/A |
+| customers | GET | `ExCustomer/GetCustomerLocationByAddressId/{addressId}` | `getCustomerLocationByAddressId` | N/A |
+| customers | GET | `ExCustomer/GetCustomersByPhoneNumber/{phoneNumber}` | `getCustomersByPhone` | N/A |
+| customers | GET | `ExCustomer/GetCustomersCreatedAfterDate` | `getCustomersCreatedAfter` | N/A |
+| customers | GET | `ExCustomer/GetCustomersCreatedBetweenDates` | `getCustomersCreatedBetween` | N/A |
+| customers | GET | `ExCustomer/GetAvailableReferralTypes` | `getReferralTypes` | N/A |
+| customers | GET | `ExCustomer/GetIndustryTypes` | `getIndustryTypes` | N/A |
+| customers | GET | `ExCustomer/GetAccountTypes` | `getAccountTypes` | N/A |
+| customers | GET | `ExCustomer/GetCustomerTerms` | `getCustomerTerms` | N/A |
+| customers | POST | `ExCustomer/Create` | `createCustomerLegacy` | Yes |
+| customers | POST | `ExCustomer/CreateCustomerLocation` | `createCustomerLocation` | Yes |
+| customers | POST | `ExCustomer/UpdateCustomerLocation` | `updateCustomerLocation` | Yes |
+| customers | POST | `ExCustomer/UpdateCustomerName` | `updateCustomerName` | Yes |
+| customers | POST | `ExCustomer/CreateCustomerNote` | `createCustomerNote` | Yes |
+| customers | POST | `ExCustomer/CreateReferralType` | `createReferralType` | Yes |
+| customers | POST | `ExCustomer/SearchCustomers_v2` | `searchCustomers` | Yes |
+| customers | POST | `ExCustomer/CreateCustomer_v2` | `createCustomer` | Yes |
+| customers | POST | `ExCustomer/UpdateCustomer_v2` | `updateCustomer` | Yes |
+| customers | GET | `ExCustomerMerge/GetCustomerMergeHistoryById` | `getCustomerMergeHistoryById` | N/A |
+| customers | POST | `ExCustomerMerge/CustomerMergeHistory_v2` | `searchCustomerMergeHistory` | Yes |
+| documents | GET | `ExDocument/OrderStatementByOrderId` | `getOrderStatement` | N/A |
+| documents | GET | `ExDocument/CustomerStatementByCustomerId` | `getCustomerStatement` | N/A |
+| documents | GET | `ExDocument/WorkOrder` | `getWorkOrder` | N/A |
+| documents | GET | `ExDocument/WorkOrderProduct` | `getWorkOrderProduct` | N/A |
+| goals | GET | `ExGoal/GetGoalsForLocations` | `getGoalsForLocations` | N/A |
+| goals | GET | `ExGoal/GetGoalsForSalePeople` | `getGoalsForSalespeople` | N/A |
+| goals | GET | `ExGoal/GetCompanyCurrent` | `getCompanyCurrent` | N/A |
+| goals | GET | `ExGoal/GetCompanyWideTotals` | `getCompanyWideTotals` | N/A |
+| goals | GET | `ExGoal/GetGroupCompareCurrent` | `getGroupCompareCurrent` | N/A |
+| goals | GET | `ExGoal/GetGroupCompareTotal` | `getGroupCompareTotal` | N/A |
+| goals | GET | `ExGoal/GetSalesMonitorTotals` | `getSalesMonitorTotals` | N/A |
+| orders | GET | `ExEstimate/Get` | `getEstimate` | N/A |
+| orders | POST | `ExEstimate/CancelEstimate` | `cancelEstimate` | Yes |
+| orders | GET | `ExEstimate/ConvertEstimate` | `convertEstimate` | N/A |
+| orders | POST | `ExEstimate/ConvertEstimate` | `convertEstimatePost` | N/A |
+| orders | GET | `ExOrder` | `getOrders` | N/A |
+| orders | GET | `ExOrder/{orderId}` | `getOrderById` | N/A |
+| orders | GET | `ExOrder/GetCustomerPortalLink/{orderId}` | `getCustomerPortalLink` | N/A |
+| orders | POST | `ExOrder/CreateGenericOrder` | `createGenericOrder` | Yes |
+| orders | POST | `ExOrder/SearchOrders_v2` | `searchOrders` | Yes |
+| orders | POST | `ExOrder/AddOrderNotes` | `addOrderNotes` | Yes |
+| orders | GET | `ExOrder/GetOrderNotes` | `getOrderNotes` | N/A |
+| orders | POST | `ExOrder/UpdateOrderNotes` | `updateOrderNotes` | Yes |
+| orders | DELETE | `ExOrder/DeleteOrderNotes` | `deleteOrderNotes` | N/A |
+| orders | POST | `ExOrder/UpdateOrderDueDate` | `updateOrderDueDate` | Yes |
+| orders | GET | `ExOrder/OrderHistory` | `getOrderHistory` | N/A |
+| orders | GET | `ExOrder/OrderHistoryTypes` | `getOrderHistoryTypes` | N/A |
+| orders | GET | `ExOrderDetail/GetExOrderDetailById` | `getOrderDetailById` | N/A |
+| orders | GET | `ExOrderDetail/GetExOrderByInvoiceNumber` | `getOrderByInvoiceNumber` | N/A |
+| orders | GET | `ExOrderDetail/GetExOrderByEstimateNumber` | `getOrderByEstimateNumber` | N/A |
+| orders | GET | `ExOrderDetail/GetOrdersByStatus` | `getOrdersByStatus` | N/A |
+| orders | GET | `ExOrderDetail/GetOrdersByStatusAndDate` | `getOrdersByStatusAndDate` | N/A |
+| orders | GET | `ExShipping/GetOrderAddress/{orderAddressId}` | `getOrderAddress` | N/A |
+| products | GET | `ExOrderProduct` | `getOrderProducts` | N/A |
+| products | GET | `ExOrderProduct` | `getOrderProductById` | N/A |
+| products | GET | `ExOrderProduct/{orderProductId}` | `getOrderProductByPathId` | N/A |
+| products | GET | `ExOrderProductPart` | `getOrderProductParts` | N/A |
+| products | GET | `ExOrderProductPart/{orderProductPartId}` | `getOrderProductPartById` | N/A |
+| products | GET | `ExOrderProduct/GetAllStatusCBName` | `getAllStatusCbName` | N/A |
+| products | GET | `ExOrderProduct/GetAllStatus` | `getAllStatus` | N/A |
+| products | POST | `ExOrderProduct/UpdateProductStatusForId` | `updateProductStatus` | N/A |
+| products | GET | `ExOrderProduct/GetAvailableSubStatusForStatus` | `getAvailableSubStatus` | N/A |
+| products | POST | `ExOrderProduct/UpdateProductSubStatusForId` | `updateProductSubstatus` | N/A |
+| products | POST | `ExOrderProduct/UpdateOrderProductFollowUpDueDate` | `updateProductFollowUpDueDate` | N/A |
+| products | POST | `ExOrderProduct/UpdateOrderProductDesignDueDate` | `updateProductDesignDueDate` | N/A |
+| products | POST | `ExQuickProduct/Search` | `searchQuickProducts` | Yes |
+| products | GET | `ExQuickProduct/GetById/{quickProductId}` | `getQuickProductById` | N/A |
+| royalty | GET | `ExRoyalty/RoyaltyPlans` | `getRoyaltyPlans` | N/A |
+| royalty | POST | `ExRoyalty/RoyaltyPlansCustomerOverrides` | `searchRoyaltyOverrides` | Yes |
+| sales | GET | `ExEmployee/GetEmployees` | `getEmployees` | N/A |
+| sales | GET | `ExReconciliation/ReconciliationDetailById` | `getReconciliationDetailById` | N/A |
+| sales | GET | `ExSalesCenter/GetLocations` | `getLocations` | N/A |
+| sales | GET | `ExSalesCenter/GetTaxGroups` | `getTaxGroups` | N/A |
+| sales | GET | `ExSalesperson/GetSalespersons` | `getSalespersons` | N/A |
 
-## Gaps
+## Compatibility
 
-- Document endpoints currently return text/string responses in JSON output. A later pass should add binary file output once we validate the actual live response content types.
-- Request/response schemas are not fully typed yet. POST endpoints accept raw JSON body fields from the Postman examples.
-- No live CoreBridge credential has been used yet, so verification is currently build/lint/package only.
+- Saved workflows containing `jsonBody` and no `bodyMode` continue to execute in JSON compatibility mode.
+- Newly added operations default to guided fields.
+- `queryParameters` remains available on every domain node and overrides generated query values.
+- `CoreBridge API Request` remains available as an authenticated escape hatch.
+
+## Verification
+
+- `npm run test:contract` proves the node metadata matches 86 documented operations plus two source-compatibility variants.
+- `npm run test:requests` proves legacy JSON and guided request construction.
+- `npm run test:wiring` executes every operation through a mocked n8n transport and validates method, path, query, and body wiring.
+- `npm run verify:release` runs build, lint, contract, request, and package checks.

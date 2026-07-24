@@ -7,8 +7,10 @@ This is an n8n community node package for the CoreBridge V2 API.
 - CoreBridge Contacts
 - CoreBridge Customers
 - CoreBridge Documents
+- CoreBridge Goals
 - CoreBridge Orders
 - CoreBridge Products
+- CoreBridge Royalty
 - CoreBridge Sales
 - CoreBridge API Request
 
@@ -26,9 +28,9 @@ The first build maps the canonical CoreBridge V2 API document package from:
 GraphX - System/System & Development/18_Customer_Sites/AlphaGraphics/Idaho Falls/CoreBridge API Document Package
 ```
 
-Coverage includes the 42 endpoints in `Postman Import JSON/CoreBridge V2 API.postman_collection.json`, the supplemental `CreateGenericOrder` Postman package, and the quick product endpoints referenced by the generic-order examples.
+Coverage includes 86 documented API operations plus two compatibility variants where the supplied Postman and technical references disagree. All 22 body-bearing operations support guided fields and complete JSON mode.
 
-See [docs/API_MAPPING.md](docs/API_MAPPING.md) for the endpoint-to-node mapping.
+See [docs/API_MAPPING.md](docs/API_MAPPING.md) for the endpoint-to-node mapping and [docs/SOURCE_INVENTORY.md](docs/SOURCE_INVENTORY.md) for the redacted source inventory.
 
 ## Development
 

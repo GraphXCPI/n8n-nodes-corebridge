@@ -2,19 +2,18 @@ import type {
 	IDataObject,
 	IExecuteFunctions,
 	IHttpRequestOptions,
-	INode,
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
 } from 'n8n-workflow';
 import { NodeApiError, NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 
+import { buildRequestBody } from './CorebridgeBodyDefinitions';
 import {
 	type CorebridgeDomain,
-	type CorebridgeEndpoint,
 	getCorebridgeProperties,
 	getEndpoint,
-	getGeneratedQuery,
+	getEndpointParameterValues,
 } from './CorebridgeEndpointDefinitions';
 
 type CorebridgeCredentials = {
@@ -68,20 +67,7 @@ function joinUrl(baseUrl: string, path: string): string {
 }
 
 function replacePathParameters(path: string, parameters: IDataObject): string {
-	return path
-		.replace('{emailAddress}', encodeURIComponent(String(parameters.emailAddress ?? '')))
-		.replace('{contactId}', encodeURIComponent(String(parameters.contactId ?? '')))
-		.replace('{accountId}', encodeURIComponent(String(parameters.accountId ?? '')))
-		.replace('{customerName}', encodeURIComponent(String(parameters.customerName ?? '')))
-		.replace('{quickProductId}', encodeURIComponent(String(parameters.quickProductId ?? '')));
-}
-
-function parseJsonBody(rawBody: string, endpoint: CorebridgeEndpoint, node: INode): IDataObject {
-	try {
-		return JSON.parse(rawBody || '{}') as IDataObject;
-	} catch (error) {
-		throw new NodeOperationError(node, `Invalid JSON body for ${endpoint.name}: ${(error as Error).message}`);
-	}
+	return path.replace(/\{([^}]+)\}/g, (_match, name: string) => encodeURIComponent(String(parameters[name] ?? '')));
 }
 
 function getAdditionalQuery(parameters: QueryCollection): IDataObject {
@@ -132,39 +118,23 @@ export class CorebridgeExecutor implements INodeType {
 					throw new NodeOperationError(this.getNode(), `Unsupported CoreBridge operation: ${operation}`, { itemIndex });
 				}
 
-				const parameters = {
-					accountId: getOptionalNodeParameter(this, 'accountId', itemIndex),
-					contactId: getOptionalNodeParameter(this, 'contactId', itemIndex),
-					customerName: getOptionalNodeParameter(this, 'customerName', itemIndex),
-					emailAddress: getOptionalNodeParameter(this, 'emailAddress', itemIndex),
-					orderId: getOptionalNodeParameter(this, 'orderId', itemIndex),
-					customerId: getOptionalNodeParameter(this, 'customerId', itemIndex),
-					invoiceNumber: getOptionalNodeParameter(this, 'invoiceNumber', itemIndex),
-					orderProductId: getOptionalNodeParameter(this, 'orderProductId', itemIndex),
-					statusName: getOptionalNodeParameter(this, 'statusName', itemIndex),
-					substatusTag: getOptionalNodeParameter(this, 'substatusTag', itemIndex),
-					followUpDateText: getOptionalNodeParameter(this, 'followUpDateText', itemIndex),
-					designDueDateText: getOptionalNodeParameter(this, 'designDueDateText', itemIndex),
-					quickProductId: getOptionalNodeParameter(this, 'quickProductId', itemIndex),
-					includeInactive: getOptionalNodeParameter(this, 'includeInactive', itemIndex),
-					direction: getOptionalNodeParameter(this, 'direction', itemIndex),
-					id: getOptionalNodeParameter(this, 'id', itemIndex),
-				} as IDataObject;
+				const parameterValues = getEndpointParameterValues(endpoint, (name) =>
+					getOptionalNodeParameter(this, name, itemIndex),
+				);
 				const queryParameters = this.getNodeParameter('queryParameters', itemIndex, {}) as QueryCollection;
-				const generatedQuery = getGeneratedQuery(operation, parameters);
 				const qs = {
-					...generatedQuery,
+					...parameterValues.query,
 					...getAdditionalQuery(queryParameters),
 				};
 				const requestOptions: IHttpRequestOptions = {
 					method: endpoint.method,
-					url: joinUrl(credentials.baseUrl, replacePathParameters(endpoint.path, parameters)),
+					url: joinUrl(credentials.baseUrl, replacePathParameters(endpoint.path, parameterValues.path)),
 					qs,
 					json: endpoint.responseFormat !== 'text',
 				};
 
 				if (endpoint.body) {
-					requestOptions.body = parseJsonBody(this.getNodeParameter('jsonBody', itemIndex, '{}') as string, endpoint, this.getNode());
+					requestOptions.body = buildRequestBody(this, operation, itemIndex, this.getNode());
 				}
 
 				const response = await this.helpers.httpRequestWithAuthentication.call(this, 'corebridgeApi', requestOptions);

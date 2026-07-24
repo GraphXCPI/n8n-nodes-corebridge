@@ -163,7 +163,7 @@ function writeWorkflows() {
 		'      - run: npm install -g npm@^11.15.0',
 		'      - run: npm ci',
 		'      - run: npm run verify:release',
-		'      - run: npm audit',
+		'      - run: npm audit --audit-level=high',
 		'      - run: npm publish --provenance --access public --tag "${{ inputs.npm_tag }}"',
 		'',
 	].join('\n'));

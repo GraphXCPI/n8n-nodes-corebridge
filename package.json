@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-corebridge",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "n8n community nodes for the CoreBridge V2 API.",
   "license": "MIT",
   "author": {
@@ -30,8 +30,10 @@
       "dist/nodes/CorebridgeContacts.node.js",
       "dist/nodes/CorebridgeCustomers.node.js",
       "dist/nodes/CorebridgeDocuments.node.js",
+      "dist/nodes/CorebridgeGoals.node.js",
       "dist/nodes/CorebridgeOrders.node.js",
       "dist/nodes/CorebridgeProducts.node.js",
+      "dist/nodes/CorebridgeRoyalty.node.js",
       "dist/nodes/CorebridgeSales.node.js",
       "dist/nodes/CorebridgeApiRequest.node.js"
     ]
@@ -44,7 +46,12 @@
     "lint:fix": "npm run n8n-node:lint -- --fix",
     "public:export": "node scripts/export-public-release.js",
     "public:scan": "node scripts/scan-public-release.js",
-    "verify:release": "npm run clean && npm run build && npm run lint && npm pack --dry-run",
+    "docs:generate": "npm run build && node scripts/generate-api-mapping.js",
+    "test:contract": "npm run build && node scripts/verify-contract.js",
+    "test:wiring": "npm run build && node scripts/test-endpoint-wiring.js",
+    "test:requests": "npm run build && node scripts/test-request-builders.js",
+    "test": "npm run test:contract && npm run test:requests && npm run test:wiring",
+    "verify:release": "npm run clean && npm run build && npm run lint && node scripts/verify-contract.js && node scripts/test-request-builders.js && node scripts/test-endpoint-wiring.js && npm pack --dry-run",
     "n8n-node:build": "npx --yes @n8n/node-cli build",
     "n8n-node:lint": "npx --yes @n8n/node-cli lint",
     "prepublishOnly": "npm run build"
