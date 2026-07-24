@@ -16,22 +16,25 @@ export class CorebridgeApi implements ICredentialType {
 		type: 'generic',
 		properties: {
 			headers: {
-				Authorization: '={{$credentials.apiKey}}',
+				Authorization:
+					'={{$credentials.apiKey.trim().startsWith("Bearer ") || $credentials.apiKey.trim().startsWith("Basic ") ? $credentials.apiKey.trim() : "Bearer " + $credentials.apiKey.trim()}}',
 			},
 		},
 	};
 
 	properties: INodeProperties[] = [
 		{
-			displayName: 'Base URL',
+			displayName: 'V2 API Base URL',
 			name: 'baseUrl',
 			type: 'string',
 			default: 'https://yoursubdomain.v2api.corebridge.net/api/public/',
 			required: true,
-			description: 'CoreBridge V2 API base URL, ending in /api/public/',
+			placeholder: 'https://yourtenant.v2api.corebridge.net/api/public/',
+			description:
+				'CoreBridge V2 API URL ending in /api/public/. Do not use the browser Login.aspx or API documentation URL.',
 		},
 		{
-			displayName: 'API Key',
+			displayName: 'Bearer API Code',
 			name: 'apiKey',
 			type: 'string',
 			typeOptions: {
@@ -39,7 +42,8 @@ export class CorebridgeApi implements ICredentialType {
 			},
 			default: '',
 			required: true,
-			description: 'CoreBridge API key sent in the Authorization header',
+			description:
+				'Location-specific V2 API code. Paste the GUID alone or the complete Bearer value; the node adds Bearer when needed.',
 		},
 	];
 

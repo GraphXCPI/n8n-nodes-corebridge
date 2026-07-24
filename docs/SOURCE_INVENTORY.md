@@ -50,3 +50,10 @@ The package was inventoried on 2026-07-23. Source documents are not copied into 
 ## Security Boundary
 
 The source package includes configured environment values and plaintext access material. Those values are excluded from Git, npm, generated documentation, tests, and logs. Store active credentials in the approved secrets vault and rotate any credential that has been distributed in plaintext.
+
+## Authentication Finding
+
+The supplied package separates the browser/API-documentation login from the location V2
+API code. Tenant verification confirmed that the browser login creates an ASP.NET cookie
+session and does not return an API bearer token. Direct V2 API use requires the tenant API
+URL and the separately issued location API code in the `Authorization` header.

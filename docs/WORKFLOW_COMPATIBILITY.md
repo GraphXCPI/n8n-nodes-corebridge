@@ -21,3 +21,13 @@ Stable identifiers for the first release:
 All 45 operation values from 0.1.0 remain present with the same domain and endpoint path. Saved nodes with `jsonBody` and no `bodyMode` execute in JSON compatibility mode. New nodes default to guided fields.
 
 The package adds operations without renaming existing node types, credentials, operation values, or parameters.
+
+## Credential Compatibility
+
+The `corebridgeApi` credential and its stored `baseUrl` and `apiKey` fields remain unchanged.
+Existing values that already include `Bearer ` or `Basic ` are sent unchanged. A bare V2 API
+code is now normalized to `Bearer {code}`.
+
+The V2 API URL is the tenant `v2api.corebridge.net/api/public/` URL. The browser
+`Login.aspx` username/password creates a web session only and is not interchangeable with
+the location-specific V2 API code.

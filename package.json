@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-corebridge",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "n8n community nodes for the CoreBridge V2 API.",
   "license": "MIT",
   "author": {
@@ -50,8 +50,9 @@
     "test:contract": "npm run build && node scripts/verify-contract.js",
     "test:wiring": "npm run build && node scripts/test-endpoint-wiring.js",
     "test:requests": "npm run build && node scripts/test-request-builders.js",
-    "test": "npm run test:contract && npm run test:requests && npm run test:wiring",
-    "verify:release": "npm run clean && npm run build && npm run lint && node scripts/verify-contract.js && node scripts/test-request-builders.js && node scripts/test-endpoint-wiring.js && npm pack --dry-run",
+    "test:credentials": "npm run build && node scripts/test-credential-contract.js",
+    "test": "npm run test:contract && npm run test:requests && npm run test:wiring && npm run test:credentials",
+    "verify:release": "npm run clean && npm run build && npm run lint && node scripts/verify-contract.js && node scripts/test-request-builders.js && node scripts/test-endpoint-wiring.js && node scripts/test-credential-contract.js && npm pack --dry-run",
     "n8n-node:build": "npx --yes @n8n/node-cli build",
     "n8n-node:lint": "npx --yes @n8n/node-cli lint",
     "prepublishOnly": "npm run build"
