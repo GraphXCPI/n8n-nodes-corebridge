@@ -8,6 +8,7 @@ import type {
 	INodeTypeDescription,
 } from 'n8n-workflow';
 import { NodeApiError, NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
+import { joinCorebridgeUrl } from './CorebridgeUrl';
 
 type CorebridgeCredentials = {
 	baseUrl: string;
@@ -22,10 +23,6 @@ type HeaderParameter = {
 	name?: string;
 	value?: string;
 };
-
-function joinUrl(baseUrl: string, path: string): string {
-	return `${baseUrl.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
-}
 
 function parametersToObject(parameters: Array<QueryParameter | HeaderParameter> = []): IDataObject {
 	const output: IDataObject = {};
@@ -146,7 +143,7 @@ export class CorebridgeApiRequest implements INodeType {
 				const headerCollection = this.getNodeParameter('headers', itemIndex, {}) as { parameters?: HeaderParameter[] };
 				const requestOptions: IHttpRequestOptions = {
 					method,
-					url: joinUrl(credentials.baseUrl, path),
+					url: joinCorebridgeUrl(credentials.baseUrl, path, this.getNode()),
 					qs: parametersToObject(queryCollection.parameters),
 					headers: parametersToObject(headerCollection.parameters),
 					json: true,

@@ -15,6 +15,7 @@ import {
 	getEndpoint,
 	getEndpointParameterValues,
 } from './CorebridgeEndpointDefinitions';
+import { joinCorebridgeUrl } from './CorebridgeUrl';
 
 type CorebridgeCredentials = {
 	baseUrl: string;
@@ -60,10 +61,6 @@ function buildDescription(config: CorebridgeNodeConfig): INodeTypeDescription {
 		],
 		properties: getCorebridgeProperties(config.domain),
 	};
-}
-
-function joinUrl(baseUrl: string, path: string): string {
-	return `${baseUrl.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
 }
 
 function replacePathParameters(path: string, parameters: IDataObject): string {
@@ -128,7 +125,11 @@ export class CorebridgeExecutor implements INodeType {
 				};
 				const requestOptions: IHttpRequestOptions = {
 					method: endpoint.method,
-					url: joinUrl(credentials.baseUrl, replacePathParameters(endpoint.path, parameterValues.path)),
+					url: joinCorebridgeUrl(
+						credentials.baseUrl,
+						replacePathParameters(endpoint.path, parameterValues.path),
+						this.getNode(),
+					),
 					qs,
 					json: endpoint.responseFormat !== 'text',
 				};

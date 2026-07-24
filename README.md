@@ -14,14 +14,23 @@ This is an n8n community node package for the CoreBridge V2 API.
 - CoreBridge Sales
 - CoreBridge API Request
 
-The package uses the CoreBridge V2 bearer API code and a tenant API URL such as:
+The credential accepts either a tenant login URL:
+
+```text
+https://yoursubdomain.corebridge.net/Login.aspx
+```
+
+or the canonical V2 API URL:
 
 ```text
 https://yoursubdomain.v2api.corebridge.net/api/public/
 ```
 
-Paste either the API code GUID or the complete `Bearer ...` value. The node adds the
-`Bearer` scheme when it is omitted.
+Tenant URLs are normalized to the matching V2 API host before every request.
+CoreBridge's supplied V2 Postman package documents `Basic <API code>` as the
+default authorization format. Paste a complete `Basic ...` or `Bearer ...`
+value to preserve it exactly, or paste the bare code and choose the matching
+scheme.
 
 The username and password for `Login.aspx` authenticate the CoreBridge browser and API
 documentation portal. They do not authenticate V2 `/api/public/` requests or return the

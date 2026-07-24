@@ -17,24 +17,24 @@ export class CorebridgeApi implements ICredentialType {
 		properties: {
 			headers: {
 				Authorization:
-					'={{$credentials.apiKey.trim().startsWith("Bearer ") || $credentials.apiKey.trim().startsWith("Basic ") ? $credentials.apiKey.trim() : "Bearer " + $credentials.apiKey.trim()}}',
+					'={{$credentials.apiKey.trim().startsWith("Bearer ") || $credentials.apiKey.trim().startsWith("Basic ") ? $credentials.apiKey.trim() : ($credentials.authorizationScheme === "Bearer" ? "Bearer " : "Basic ") + $credentials.apiKey.trim()}}',
 			},
 		},
 	};
 
 	properties: INodeProperties[] = [
 		{
-			displayName: 'V2 API Base URL',
+			displayName: 'Tenant or V2 API URL',
 			name: 'baseUrl',
 			type: 'string',
 			default: 'https://yoursubdomain.v2api.corebridge.net/api/public/',
 			required: true,
-			placeholder: 'https://yourtenant.v2api.corebridge.net/api/public/',
+			placeholder: 'https://yourtenant.corebridge.net/Login.aspx',
 			description:
-				'CoreBridge V2 API URL ending in /api/public/. Do not use the browser Login.aspx or API documentation URL.',
+				'Paste either the CoreBridge tenant Login.aspx URL or the V2 API URL ending in /api/public/. Tenant URLs are converted to the matching V2 API host.',
 		},
 		{
-			displayName: 'Bearer API Code',
+			displayName: 'API Authorization Code',
 			name: 'apiKey',
 			type: 'string',
 			typeOptions: {
@@ -43,13 +43,41 @@ export class CorebridgeApi implements ICredentialType {
 			default: '',
 			required: true,
 			description:
-				'Location-specific V2 API code. Paste the GUID alone or the complete Bearer value; the node adds Bearer when needed.',
+				'Location-specific V2 API code. Paste the code alone or the complete Basic/Bearer authorization value.',
+		},
+		{
+			displayName: 'Authorization Scheme',
+			name: 'authorizationScheme',
+			type: 'options',
+			default: 'Basic',
+			options: [
+				{
+					name: 'Basic (V2 API Default)',
+					value: 'Basic',
+				},
+				{
+					name: 'Bearer',
+					value: 'Bearer',
+				},
+			],
+			description:
+				'Scheme added only when the API authorization code does not already start with Basic or Bearer',
 		},
 	];
 
 	test: ICredentialTestRequest = {
 		request: {
-			url: '={{$credentials.baseUrl.replace(/\\/$/, "") + "/ExSalesCenter/GetLocations"}}',
+			url: '={{$credentials.baseUrl.trim().replace(/\\/Login\\.aspx.*$/i, "").replace(/^(https?:\\/\\/)([^./]+)\\.corebridge\\.net.*$/i, "$1$2.v2api.corebridge.net/api/public/").replace(/\\/+$/, "") + "/ExSalesCenter/GetLocations"}}',
 		},
+		rules: [
+			{
+				type: 'responseCode',
+				properties: {
+					value: 200,
+					message:
+						'CoreBridge rejected the API credentials. Verify the tenant URL, API authorization code, and Basic/Bearer scheme.',
+				},
+			},
+		],
 	};
 }
