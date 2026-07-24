@@ -1,6 +1,10 @@
 const assert = require('node:assert/strict');
 
-const { endpoints } = require('../dist/nodes/CorebridgeEndpointDefinitions.js');
+const {
+	endpoints,
+	getCorebridgeProperties,
+	selectableDomains,
+} = require('../dist/nodes/CorebridgeEndpointDefinitions.js');
 const { CorebridgeExecutor } = require('../dist/nodes/CorebridgeExecutor.js');
 
 function sampleValue(parameter) {
@@ -9,13 +13,14 @@ function sampleValue(parameter) {
 	return 'sample';
 }
 
-async function captureRequest(endpoint) {
+async function captureRequest(endpoint, resource = endpoint.domain) {
 	const values = {
 		operation: endpoint.operation,
 		bodyMode: 'json',
 		jsonBody: '{}',
 		queryParameters: {},
 	};
+	if (resource !== undefined) values.resource = resource;
 	for (const parameter of endpoint.parameters ?? []) values[parameter.name] = sampleValue(parameter);
 
 	const node = {
@@ -45,6 +50,37 @@ async function captureRequest(endpoint) {
 }
 
 (async () => {
+	for (const defaultDomain of selectableDomains) {
+		const properties = getCorebridgeProperties(defaultDomain);
+		const resource = properties.find((property) => property.name === 'resource');
+		const operationSelectors = properties.filter((property) => property.name === 'operation');
+
+		assert.equal(resource.default, defaultDomain, `${defaultDomain} resource default`);
+		assert.deepEqual(
+			resource.options.map((option) => option.value),
+			selectableDomains,
+			`${defaultDomain} resource options`,
+		);
+		assert.equal(
+			operationSelectors.length,
+			selectableDomains.length,
+			`${defaultDomain} operation selector count`,
+		);
+		for (const selectableDomain of selectableDomains) {
+			const selector = operationSelectors.find(
+				(property) => property.displayOptions?.show?.resource?.[0] === selectableDomain,
+			);
+			assert.ok(selector, `${defaultDomain} missing ${selectableDomain} operation selector`);
+			assert.deepEqual(
+				selector.options.map((option) => option.value),
+				endpoints
+					.filter((endpoint) => endpoint.domain === selectableDomain)
+					.map((endpoint) => endpoint.operation),
+				`${defaultDomain} ${selectableDomain} operation options`,
+			);
+		}
+	}
+
 	for (const endpoint of endpoints) {
 		const request = await captureRequest(endpoint);
 		const expectedPath = endpoint.path.replace(/\{([^}]+)\}/g, (_match, name) => {
@@ -64,7 +100,22 @@ async function captureRequest(endpoint) {
 		}
 		if (endpoint.body) assert.deepEqual(request.body, {}, `${endpoint.operation} JSON body`);
 	}
-	console.log(`CoreBridge endpoint wire tests passed: ${endpoints.length} mocked requests`);
+
+	const legacyRequest = await captureRequest(endpoints[0], undefined);
+	assert.equal(
+		legacyRequest.url,
+		'https://corebridge.example.test/api/public/ExContact',
+		'Legacy workflow without resource must remain executable',
+	);
+	await assert.rejects(
+		() => captureRequest(endpoints[0], 'orders'),
+		/does not belong to the selected orders resource/,
+		'Resource and operation mismatches must not execute',
+	);
+
+	console.log(
+		`CoreBridge endpoint wire tests passed: ${endpoints.length} mocked requests and ${selectableDomains.length} resource selectors`,
+	);
 })().catch((error) => {
 	console.error(error);
 	process.exit(1);

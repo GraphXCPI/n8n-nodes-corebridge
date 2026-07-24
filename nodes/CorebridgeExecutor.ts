@@ -115,6 +115,15 @@ export class CorebridgeExecutor implements INodeType {
 					throw new NodeOperationError(this.getNode(), `Unsupported CoreBridge operation: ${operation}`, { itemIndex });
 				}
 
+				const resource = getOptionalNodeParameter(this, 'resource', itemIndex);
+				if (typeof resource === 'string' && resource && endpoint.domain !== resource) {
+					throw new NodeOperationError(
+						this.getNode(),
+						`The ${operation} operation does not belong to the selected ${resource} resource. Select an operation from the current Resource list.`,
+						{ itemIndex },
+					);
+				}
+
 				const parameterValues = getEndpointParameterValues(endpoint, (name) =>
 					getOptionalNodeParameter(this, name, itemIndex),
 				);

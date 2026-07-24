@@ -220,6 +220,17 @@ export const domainLabels: Record<CorebridgeDomain, string> = {
 	apiRequest: 'CoreBridge API Request',
 };
 
+export const selectableDomains: CorebridgeDomain[] = [
+	'contacts',
+	'customers',
+	'orders',
+	'products',
+	'documents',
+	'goals',
+	'royalty',
+	'sales',
+];
+
 export function getEndpointsForDomain(domain: CorebridgeDomain): CorebridgeEndpoint[] {
 	return endpoints.filter((endpoint) => endpoint.domain === domain);
 }
@@ -238,18 +249,38 @@ export function getOperationOptions(domain: CorebridgeDomain) {
 }
 
 export function getCorebridgeProperties(domain: CorebridgeDomain): INodeProperties[] {
-	const operations = getEndpointsForDomain(domain);
+	const operations = endpoints;
 	const bodyOperations = operations.filter((endpoint) => endpoint.body).map((endpoint) => endpoint.operation);
 	const properties: INodeProperties[] = [
 		{
+			displayName: 'Resource',
+			name: 'resource',
+			type: 'options',
+			noDataExpression: true,
+			options: selectableDomains.map((selectableDomain) => ({
+				name: domainLabels[selectableDomain].replace(/^CoreBridge /, ''),
+				value: selectableDomain,
+			})),
+			default: domain,
+		},
+	];
+
+	for (const selectableDomain of selectableDomains) {
+		const domainOperations = getEndpointsForDomain(selectableDomain);
+		properties.push({
 			displayName: 'Operation',
 			name: 'operation',
 			type: 'options',
 			noDataExpression: true,
-			options: getOperationOptions(domain),
-			default: operations[0]?.operation ?? '',
-		},
-	];
+			options: getOperationOptions(selectableDomain),
+			default: domainOperations[0]?.operation ?? '',
+			displayOptions: {
+				show: {
+					resource: [selectableDomain],
+				},
+			},
+		});
+	}
 
 	for (const endpoint of operations) {
 		for (const parameter of endpoint.parameters ?? []) {

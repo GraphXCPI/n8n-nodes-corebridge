@@ -14,6 +14,11 @@ This is an n8n community node package for the CoreBridge V2 API.
 - CoreBridge Sales
 - CoreBridge API Request
 
+Every typed domain node includes a **Resource** selector. You can switch between
+Contacts, Customers, Orders, Products, Documents, Goals, Royalty, and Sales
+without deleting the node. The **Operation** list updates to the selected
+resource. Existing workflows retain their original node type and operation.
+
 The credential accepts either a tenant login URL:
 
 ```text
