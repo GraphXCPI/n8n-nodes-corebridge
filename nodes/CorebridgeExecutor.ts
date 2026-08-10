@@ -42,7 +42,7 @@ function buildDescription(config: CorebridgeNodeConfig): INodeTypeDescription {
 	return {
 		displayName: config.displayName,
 		name: config.name,
-		icon: { light: 'file:corebridge.svg', dark: 'file:corebridge.dark.svg' },
+		icon: { light: 'file:corebridge-app.svg', dark: 'file:corebridge-app.dark.svg' },
 		group: ['transform'],
 		version: 1,
 		usableAsTool: true,

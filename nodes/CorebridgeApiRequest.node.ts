@@ -39,7 +39,7 @@ export class CorebridgeApiRequest implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'CoreBridge API Request',
 		name: 'corebridgeApiRequest',
-		icon: { light: 'file:corebridge.svg', dark: 'file:corebridge.dark.svg' },
+		icon: { light: 'file:corebridge-app.svg', dark: 'file:corebridge-app.dark.svg' },
 		group: ['transform'],
 		version: 1,
 		usableAsTool: true,

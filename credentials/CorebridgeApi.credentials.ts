@@ -9,7 +9,7 @@ import type {
 export class CorebridgeApi implements ICredentialType {
 	name = 'corebridgeApi';
 	displayName = 'CoreBridge API';
-	icon: Icon = { light: 'file:corebridge.svg', dark: 'file:corebridge.dark.svg' };
+	icon: Icon = { light: 'file:corebridge-app.svg', dark: 'file:corebridge-app.dark.svg' };
 	documentationUrl = 'https://support.corebridge.net/';
 
 	authenticate: IAuthenticateGeneric = {
