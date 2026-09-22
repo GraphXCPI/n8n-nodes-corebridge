@@ -320,6 +320,20 @@ export function getCorebridgeProperties(domain: CorebridgeDomain): INodeProperti
 		});
 	}
 	properties.push(...getBodyProperties(bodyOperations));
+	properties.push(
+		{
+			displayName: 'Search Request Interval (Seconds)', name: 'searchRequestInterval', type: 'number', default: 8,
+			typeOptions: { minValue: 8, maxValue: 3600, numberPrecision: 0 },
+			displayOptions: { show: { operation: ['searchContacts', 'searchCustomers'] } },
+			description: 'Minimum interval within this execution. Other workflows share API quotas but are not coordinated. The daily quota still applies.',
+		},
+		{
+			displayName: 'Search Rate Limit Retries', name: 'searchRateLimitRetries', type: 'number', default: 2,
+			typeOptions: { minValue: 0, maxValue: 3, numberPrecision: 0 },
+			displayOptions: { show: { operation: ['searchContacts', 'searchCustomers'] } },
+			description: 'Retry only HTTP 429 on this read-only search. Honor Retry-After up to 120 seconds; otherwise stop. Without the header, wait 60 seconds. Does not retry writes.',
+		},
+	);
 	properties.push({
 		displayName: 'Query Parameters',
 		name: 'queryParameters',

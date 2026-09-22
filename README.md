@@ -73,6 +73,23 @@ payloads for existing workflows; the API validates their fields. Object response
 envelopes are retained. A top-level array is returned under `data` to keep n8n item
 JSON valid, without dropping records. Each input item retains its output linkage.
 
+### Search Rate Limits
+
+Customer and Contact Search allow 10 requests/minute, 500/hour and 7,500/day.
+The node sends one search per input item. Search requests within one execution
+are paced at 8 seconds by default (configurable upward). HTTP 429 retries default
+to two and apply only to these read-only searches, never writes. Retry-After is
+honored; without it the delay is 60 seconds. Cooldowns longer than 120 seconds
+stop execution instead of retrying early. Hourly/daily quota exhaustion still
+requires waiting for the server quota reset.
+
+Pacing is execution-local, not shared across workflows, workers or other clients.
+Avoid concurrent bulk searches with the same API account. For extraction, use
+pages of up to 50 records rather than repeating an unfiltered search per incoming
+customer. Long batches can exceed workflow timeouts; use smaller resumable batches
+and n8n Wait nodes for long cooldowns. Do not restart a workflow containing writes
+from the beginning after a search failure without reviewing completed side effects.
+
 ## Development
 
 ```bash

@@ -17,6 +17,7 @@ import {
 } from './CorebridgeEndpointDefinitions';
 import { joinCorebridgeUrl } from './CorebridgeUrl';
 import { corebridgeRequestError } from './CorebridgeErrors';
+import { CorebridgeSearchRateLimit, isPacedSearch } from './CorebridgeSearchRateLimit';
 
 type CorebridgeCredentials = {
 	baseUrl: string;
@@ -106,6 +107,7 @@ export class CorebridgeExecutor implements INodeType {
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const items = this.getInputData();
 		const returnData: INodeExecutionData[] = [];
+		const searchRateLimit = new CorebridgeSearchRateLimit();
 		const credentials = (await this.getCredentials('corebridgeApi')) as CorebridgeCredentials;
 
 		for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
@@ -170,7 +172,12 @@ export class CorebridgeExecutor implements INodeType {
 				}
 
 				requestStarted = true;
-				const response = await this.helpers.httpRequestWithAuthentication.call(this, 'corebridgeApi', requestOptions);
+				const send = () => this.helpers.httpRequestWithAuthentication.call(this, 'corebridgeApi', requestOptions);
+				const response = isPacedSearch(operation)
+					? await searchRateLimit.request(send,
+						Number(this.getNodeParameter('searchRequestInterval', itemIndex, 8)),
+						Number(this.getNodeParameter('searchRateLimitRetries', itemIndex, 2)))
+					: await send();
 				returnData.push({
 					json: normalizeResponse(response),
 					pairedItem: {
