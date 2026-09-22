@@ -4,7 +4,7 @@ const { hasStructuredBody } = require('../dist/nodes/CorebridgeBodyDefinitions.j
 const { endpoints } = require('../dist/nodes/CorebridgeEndpointDefinitions.js');
 
 const documentedContract = `
-GET ExContact
+GET ExContact/Get
 GET ExContact/GetContactById/{contactId}
 GET ExContact/GetContactsByEmailAddress/{emailAddress}
 GET ExContact/GetContactsModifiedAfterDate/{days}
@@ -15,7 +15,7 @@ POST ExContact/UpdateContactTypeForContact
 POST ExContact/CreateContactType
 GET ExContact/GetAvailableContactTypes
 GET ExContact/GetAvailableContactJobAuthority
-GET ExCustomer
+GET ExCustomer/Get
 GET ExCustomer/GetCustomerByName/{customerName}
 GET ExCustomer/GetCustomerById/{accountId}
 GET ExCustomer/GetCustomerLocationsByCustomerId/{accountId}

@@ -5,6 +5,7 @@ import type {
 	INodeProperties,
 	Icon,
 } from 'n8n-workflow';
+import { corebridgeCredentialTestUrl } from '../nodes/CorebridgeUrl';
 
 export class CorebridgeApi implements ICredentialType {
 	name = 'corebridgeApi';
@@ -67,16 +68,20 @@ export class CorebridgeApi implements ICredentialType {
 
 	test: ICredentialTestRequest = {
 		request: {
-			url: '={{$credentials.baseUrl.trim().replace(/\\/Login\\.aspx.*$/i, "").replace(/^(https?:\\/\\/)([^./]+)\\.corebridge\\.net.*$/i, "$1$2.v2api.corebridge.net/api/public/").replace(/\\/+$/, "") + "/ExSalesCenter/GetLocations"}}',
+			url: corebridgeCredentialTestUrl(),
 		},
 		rules: [
 			{
 				type: 'responseCode',
 				properties: {
-					value: 200,
+					value: 401,
 					message:
 						'CoreBridge rejected the API credentials. Verify the tenant URL, API authorization code, and Basic/Bearer scheme.',
 				},
+			},
+			{
+				type: 'responseCode',
+				properties: { value: 403, message: 'CoreBridge denied access. Verify the API code and tenant/location permissions.' },
 			},
 		],
 	};

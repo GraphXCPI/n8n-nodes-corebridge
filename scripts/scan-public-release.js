@@ -19,9 +19,11 @@ const blockedPatterns = [
 	{ label: 'localhost service URL', regex: /127\.0\.0\.1:\d+|localhost:\d+/i },
 	{ label: 'npm token secret', regex: /NPM_TOKEN|NODE_AUTH_TOKEN/i },
 	{ label: 'private email', regex: /christian@visualgraphx\.com|chris@/i },
+	{ label: 'internal hostname', regex: /(?:n8n|memory|staging)\.visualgraphx\.com|ag679test\.(?:v2api\.)?corebridge\.net/i },
+	{ label: 'credential token', regex: /\b(?:kvag_|ghp_|npm_)[A-Za-z0-9]{20,}/ },
 ];
 
-const skippedDirectories = new Set(['.git', 'node_modules', '.codegraph', 'dist']);
+const skippedDirectories = new Set(['.git', 'node_modules', '.codegraph']);
 
 function walk(directory, files = []) {
 	for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
@@ -61,7 +63,7 @@ for (const filePath of walk(scanRoot)) {
 	lines.forEach((line, index) => {
 		for (const pattern of blockedPatterns) {
 			if (pattern.regex.test(line)) {
-				findings.push({ file: relativePath, line: index + 1, label: pattern.label, text: line.trim() });
+				findings.push({ file: relativePath, line: index + 1, label: pattern.label });
 			}
 		}
 	});
@@ -69,7 +71,7 @@ for (const filePath of walk(scanRoot)) {
 
 if (findings.length > 0) {
 	for (const finding of findings) {
-		console.error(`${finding.file}:${finding.line} [${finding.label}] ${finding.text}`);
+		console.error(`${finding.file}:${finding.line} [${finding.label}]`);
 	}
 	process.exit(1);
 }

@@ -6,10 +6,13 @@ const {
 	selectableDomains,
 } = require('../dist/nodes/CorebridgeEndpointDefinitions.js');
 const { CorebridgeExecutor } = require('../dist/nodes/CorebridgeExecutor.js');
+const { bodyJsonFixtures } = require('./test-body-document-contract');
 
 function sampleValue(parameter) {
 	if (parameter.type === 'boolean') return true;
-	if (parameter.type === 'number') return 123;
+	if (parameter.name === 'beginDays') return 5;
+	if (parameter.name === 'endDays') return 1;
+	if (parameter.type === 'number') return Math.min(parameter.maximum ?? 123, Math.max(parameter.minimum ?? 1, 1));
 	return 'sample';
 }
 
@@ -17,10 +20,10 @@ async function captureRequest(endpoint, resource = endpoint.domain) {
 	const values = {
 		operation: endpoint.operation,
 		bodyMode: 'json',
-		jsonBody: '{}',
+		jsonBody: JSON.stringify(bodyJsonFixtures[endpoint.operation] ?? {}),
 		queryParameters: {},
 	};
-	if (resource !== undefined) values.resource = resource;
+	if (resource !== null) values.resource = resource;
 	for (const parameter of endpoint.parameters ?? []) values[parameter.name] = sampleValue(parameter);
 
 	const node = {
@@ -89,7 +92,7 @@ async function captureRequest(endpoint, resource = endpoint.domain) {
 		});
 		assert.equal(request.method, endpoint.method, `${endpoint.operation} method`);
 		assert.equal(request.url.includes('{'), false, `${endpoint.operation} has unresolved path parameters`);
-		assert.equal(request.url, `https://corebridge.example.test/api/public/${expectedPath}`, `${endpoint.operation} URL`);
+		assert.equal(request.url, `https://corebridge.example.test/api/${endpoint.apiRoot === 'legacy' ? '' : 'public/'}${expectedPath}`, `${endpoint.operation} URL`);
 		for (const parameter of endpoint.parameters ?? []) {
 			if (parameter.location !== 'query') continue;
 			assert.equal(
@@ -98,13 +101,17 @@ async function captureRequest(endpoint, resource = endpoint.domain) {
 				`${endpoint.operation} missing query parameter ${parameter.apiName ?? parameter.name}`,
 			);
 		}
-		if (endpoint.body) assert.deepEqual(request.body, {}, `${endpoint.operation} JSON body`);
+		if (endpoint.body) {
+			const body = bodyJsonFixtures[endpoint.operation];
+			assert.deepEqual(request.body, typeof body === 'string' ? JSON.stringify(body) : body, `${endpoint.operation} JSON body`);
+			assert.equal(request.headers['Content-Type'], 'application/json');
+		}
 	}
 
-	const legacyRequest = await captureRequest(endpoints[0], undefined);
+	const legacyRequest = await captureRequest(endpoints[0], null);
 	assert.equal(
 		legacyRequest.url,
-		'https://corebridge.example.test/api/public/ExContact',
+		'https://corebridge.example.test/api/ExContact/Get',
 		'Legacy workflow without resource must remain executable',
 	);
 	await assert.rejects(

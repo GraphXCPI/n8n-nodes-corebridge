@@ -43,15 +43,35 @@ location API code. Obtain the V2 API code separately for the same tenant/locatio
 
 ## API Coverage
 
-The first build maps the canonical CoreBridge V2 API document package from:
-
-```text
-GraphX - System/System & Development/18_Customer_Sites/AlphaGraphics/Idaho Falls/CoreBridge API Document Package
-```
+The node maps the supplied CoreBridge V2 technical references and Postman collection.
+The 0.3.0 candidate audits all registered operations against those documents,
+including the June 2026 Quick Products contract. Document coverage is not proof
+that every route is enabled on every tenant.
 
 Coverage includes 86 documented API operations plus two compatibility variants where the supplied Postman and technical references disagree. All 22 body-bearing operations support guided fields and complete JSON mode.
 
 See [docs/API_MAPPING.md](docs/API_MAPPING.md) for the endpoint-to-node mapping and [docs/SOURCE_INVENTORY.md](docs/SOURCE_INVENTORY.md) for the redacted source inventory.
+
+See [the migration guide](docs/MIGRATION_0.3.0.md),
+[endpoint audit](docs/ENDPOINT_CONTRACT_AUDIT.md), and
+[body audit](docs/BODY_CONTRACT_AUDIT.md) before updating existing workflows.
+
+### Customers and Contacts
+
+Legacy lists use `/api/ExContact/Get` and `/api/ExCustomer/Get`; live tests found
+the documented `/api/public/` list roots return 404. V2 Search remains under
+`/api/public/` and uses one-based paging. POST Search reads records, not writes.
+The node never silently substitutes Search for a legacy list. Legacy Contacts
+indexes 0 and 1 returned the same record, and the legacy Customers list returned
+no rows despite nonempty V2 search results. Use V2 Search for extraction; legacy
+list paging and dataset equivalence remain unverified. A credential test alone
+does not prove operation behavior.
+
+Fields mode validates documented inputs and exposes nested objects/arrays through
+structured controls with JSON alternatives. Complete JSON mode preserves supplied
+payloads for existing workflows; the API validates their fields. Object response
+envelopes are retained. A top-level array is returned under `data` to keep n8n item
+JSON valid, without dropping records. Each input item retains its output linkage.
 
 ## Development
 

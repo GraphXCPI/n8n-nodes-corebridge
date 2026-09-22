@@ -30,11 +30,11 @@ lines.push(
 	'',
 	'## Operation Map',
 	'',
-	'| Domain | Method | Endpoint | n8n Operation | Guided Body |',
-	'| --- | --- | --- | --- | --- |',
+	'| Domain | Method | API Root | Endpoint | n8n Operation | Guided Body |',
+	'| --- | --- | --- | --- | --- | --- |',
 );
 for (const endpoint of endpoints) {
-	lines.push(`| ${endpoint.domain} | ${endpoint.method} | \`${endpoint.path}\` | \`${endpoint.operation}\` | ${endpoint.body ? 'Yes' : 'N/A'} |`);
+	lines.push(`| ${endpoint.domain} | ${endpoint.method} | \`${endpoint.apiRoot === 'legacy' ? '/api/' : '/api/public/'}\` | \`${endpoint.path}\` | \`${endpoint.operation}\` | ${endpoint.body ? 'Yes' : 'N/A'} |`);
 }
 
 lines.push(

@@ -6,7 +6,7 @@ import type {
 	INodeType,
 	INodeTypeDescription,
 } from 'n8n-workflow';
-import { NodeApiError, NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
+import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 
 import { buildRequestBody } from './CorebridgeBodyDefinitions';
 import {
@@ -16,6 +16,7 @@ import {
 	getEndpointParameterValues,
 } from './CorebridgeEndpointDefinitions';
 import { joinCorebridgeUrl } from './CorebridgeUrl';
+import { corebridgeRequestError } from './CorebridgeErrors';
 
 type CorebridgeCredentials = {
 	baseUrl: string;
@@ -79,6 +80,7 @@ function getAdditionalQuery(parameters: QueryCollection): IDataObject {
 }
 
 function normalizeResponse(response: unknown): IDataObject {
+	if (Array.isArray(response)) return { data: response as IDataObject[] };
 	if (typeof response === 'object' && response !== null) {
 		return response as IDataObject;
 	}
@@ -107,6 +109,8 @@ export class CorebridgeExecutor implements INodeType {
 		const credentials = (await this.getCredentials('corebridgeApi')) as CorebridgeCredentials;
 
 		for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
+			let route = 'API request';
+			let requestStarted = false;
 			try {
 				const operation = this.getNodeParameter('operation', itemIndex) as string;
 				const endpoint = getEndpoint(operation);
@@ -114,6 +118,7 @@ export class CorebridgeExecutor implements INodeType {
 				if (!endpoint) {
 					throw new NodeOperationError(this.getNode(), `Unsupported CoreBridge operation: ${operation}`, { itemIndex });
 				}
+				route = `${endpoint.method} ${endpoint.path}`;
 
 				const resource = getOptionalNodeParameter(this, 'resource', itemIndex);
 				if (typeof resource === 'string' && resource && endpoint.domain !== resource) {
@@ -124,29 +129,47 @@ export class CorebridgeExecutor implements INodeType {
 					);
 				}
 
-				const parameterValues = getEndpointParameterValues(endpoint, (name) =>
-					getOptionalNodeParameter(this, name, itemIndex),
-				);
 				const queryParameters = this.getNodeParameter('queryParameters', itemIndex, {}) as QueryCollection;
+				const additionalQuery = getAdditionalQuery(queryParameters);
+				let parameterValues: ReturnType<typeof getEndpointParameterValues>;
+				try {
+					parameterValues = getEndpointParameterValues(endpoint, (name) => {
+						const parameter = endpoint.parameters?.find((entry) => entry.name === name && entry.location === 'query');
+						const wireName = parameter?.apiName ?? name;
+						return parameter && Object.prototype.hasOwnProperty.call(additionalQuery, wireName)
+							? additionalQuery[wireName]
+							: getOptionalNodeParameter(this, name, itemIndex);
+					});
+				} catch (error) {
+					throw new NodeOperationError(this.getNode(), (error as Error).message, { itemIndex });
+				}
 				const qs = {
+					...additionalQuery,
 					...parameterValues.query,
-					...getAdditionalQuery(queryParameters),
 				};
+				for (const parameter of endpoint.parameters ?? []) {
+					const key = parameter.apiName ?? parameter.name;
+					if (parameter.location === 'query' && !Object.prototype.hasOwnProperty.call(parameterValues.query, key)) delete qs[key];
+				}
 				const requestOptions: IHttpRequestOptions = {
 					method: endpoint.method,
 					url: joinCorebridgeUrl(
 						credentials.baseUrl,
 						replacePathParameters(endpoint.path, parameterValues.path),
 						this.getNode(),
+						endpoint.apiRoot,
 					),
 					qs,
 					json: endpoint.responseFormat !== 'text',
 				};
 
 				if (endpoint.body) {
-					requestOptions.body = buildRequestBody(this, operation, itemIndex, this.getNode());
+					const body = buildRequestBody(this, operation, itemIndex, this.getNode());
+					requestOptions.body = typeof body === 'string' ? JSON.stringify(body) : body;
+					requestOptions.headers = { 'Content-Type': 'application/json' };
 				}
 
+				requestStarted = true;
 				const response = await this.helpers.httpRequestWithAuthentication.call(this, 'corebridgeApi', requestOptions);
 				returnData.push({
 					json: normalizeResponse(response),
@@ -155,12 +178,13 @@ export class CorebridgeExecutor implements INodeType {
 					},
 				});
 			} catch (error) {
+				const safeError = !requestStarted && error instanceof NodeOperationError ? error : corebridgeRequestError(error, this.getNode(), itemIndex, route);
 				if (!this.continueOnFail()) {
-					throw new NodeApiError(this.getNode(), { message: (error as Error).message }, { itemIndex });
+					throw safeError;
 				}
 
 				returnData.push({
-					json: { error: (error as Error).message },
+					json: { error: safeError.message },
 					pairedItem: {
 						item: itemIndex,
 					},

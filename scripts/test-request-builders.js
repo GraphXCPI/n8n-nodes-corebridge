@@ -44,6 +44,7 @@ const orderNode = {
 		bodyMode: 'fields',
 		body_createGenericOrder_externalId: 'TEST-1',
 		body_createGenericOrder_isEstimate: true,
+		body_createGenericOrder_cbAccountId: 7,
 		body_createGenericOrder_genericOrderLineItems: '[{"ExternalId":"LINE-1","ProductDescription":"Test","ProductQuantity":1}]',
 		additionalBodyJson: '{}',
 	},
@@ -53,6 +54,7 @@ assert.deepEqual(
 	{
 		ExternalId: 'TEST-1',
 		IsEstimate: true,
+		CbAccountId: 7,
 		GenericOrderLineItems: [{ ExternalId: 'LINE-1', ProductDescription: 'Test', ProductQuantity: 1 }],
 	},
 	'Generic Order must accept a JSON object array for line items',

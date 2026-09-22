@@ -1,43 +1,29 @@
 import type { INode } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 
-const COREBRIDGE_API_PATH = '/api/public/';
-
+// Keep this function self-contained: credential expressions cannot use the URL constructor.
 export function normalizeCorebridgeBaseUrl(value: string): string | undefined {
-	const input = value.trim();
-
-	if (!input) {
-		return undefined;
-	}
-
-	let url: URL;
-	try {
-		url = new URL(input);
-	} catch {
-		return undefined;
-	}
-
-	if (url.protocol !== 'https:' && url.protocol !== 'http:') {
-		return undefined;
-	}
-
-	if (/^[^.]+\.v2api\.corebridge\.net$/i.test(url.hostname)) {
-		return `${url.protocol}//${url.hostname}${COREBRIDGE_API_PATH}`;
-	}
-
-	const tenantMatch = url.hostname.match(/^([^.]+)\.corebridge\.net$/i);
-	if (tenantMatch) {
-		return `${url.protocol}//${tenantMatch[1]}.v2api.corebridge.net${COREBRIDGE_API_PATH}`;
-	}
-
-	if (url.pathname.replace(/\/+$/, '').toLowerCase().endsWith('/api/public')) {
-		return `${url.protocol}//${url.host}${url.pathname.replace(/\/+$/, '')}/`;
-	}
-
-	return undefined;
+	if (typeof value !== 'string') return undefined;
+	const match = value.trim().match(/^(https?):\/\/([a-z0-9.-]+)(?::([0-9]+))?(\/[^?#\s]*)?(?:[?#].*)?$/i);
+	if (!match) return undefined;
+	const protocol = match[1].toLowerCase();
+	let host = match[2].toLowerCase();
+	if (!host.split('.').every((label) => /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(label))) return undefined;
+	const portNumber = match[3] ? Number(match[3]) : undefined;
+	if (portNumber !== undefined && (portNumber < 1 || portNumber > 65535)) return undefined;
+	const port = portNumber === undefined || (protocol === 'https' && portNumber === 443) || (protocol === 'http' && portNumber === 80) ? '' : `:${portNumber}`;
+	let path = (match[4] ?? '').replace(/\/+$/, '');
+	if (/^[^.]+\.corebridge\.net$/.test(host)) host = host.replace('.corebridge.net', '.v2api.corebridge.net');
+	if (/^[^.]+\.v2api\.corebridge\.net$/.test(host)) path = '/api/public';
+	else if (!/\/api\/public$/i.test(path) || path.split('/').some((part) => part === '.' || part === '..')) return undefined;
+	return `${protocol}://${host}${port}${path}/`;
 }
 
-export function joinCorebridgeUrl(baseUrl: string, path: string, node: INode): string {
+export function corebridgeCredentialTestUrl(): string {
+	return `={{ (() => { const base = (${normalizeCorebridgeBaseUrl.toString()})($credentials.baseUrl); if (!base) throw new Error('Invalid CoreBridge API URL'); return base + 'ExSalesCenter/GetLocations'; })() }}`;
+}
+
+export function joinCorebridgeUrl(baseUrl: string, path: string, node: INode, apiRoot: 'public' | 'legacy' = 'public'): string {
 	const normalizedBaseUrl = normalizeCorebridgeBaseUrl(baseUrl);
 	if (!normalizedBaseUrl) {
 		throw new NodeOperationError(
@@ -46,5 +32,7 @@ export function joinCorebridgeUrl(baseUrl: string, path: string, node: INode): s
 		);
 	}
 
-	return `${normalizedBaseUrl.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
+	// Only the explicitly marked legacy list actions use /api rather than /api/public.
+	const requestBaseUrl = apiRoot === 'legacy' ? normalizedBaseUrl.replace(/\/public\/$/i, '/') : normalizedBaseUrl;
+	return `${requestBaseUrl.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
 }

@@ -1,10 +1,10 @@
 # CoreBridge Source Inventory
 
-Canonical source package:
-
-`GraphX - System/System & Development/18_Customer_Sites/AlphaGraphics/Idaho Falls/CoreBridge API Document Package`
-
-The package was inventoried on 2026-07-23. Source documents are not copied into this repository because the package contains customer-specific environment material.
+Source packages are maintained privately. The original inventory below dates to
+2026-07-23; the supplied `API_Documentation_Package.zip` was re-audited on
+2026-09-22, including the newer Quick Products reference. These dates distinguish
+receipt/audit dates from API release dates. Source documents and configured
+environments are not copied into this repository.
 
 ## General Guides
 
@@ -26,6 +26,7 @@ The package was inventoried on 2026-07-23. Source documents are not copied into 
 - `API Endpoints Technical/CBv2-V2 API - Employees-130126-131046.pdf`
 - `API Endpoints Technical/CBv2-V2 API - Goals-130126-131111.pdf`
 - `API Endpoints Technical/CBv2-V2 API - Orders-130126-131138.pdf`
+- `API Endpoints Technical/CBv2-V2 API - Quick Products-300626-172500.pdf`
 - `API Endpoints Technical/CBv2-V2 API - Reconciliation-130126-131233.pdf`
 - `API Endpoints Technical/CBv2-V2 API - Royalty-130126-131302.pdf`
 - `API Endpoints Technical/CBv2-V2 API - Sales Centers-130126-131324.pdf`
@@ -54,6 +55,6 @@ The source package includes configured environment values and plaintext access m
 ## Authentication Finding
 
 The supplied package separates the browser/API-documentation login from the location V2
-API code. Tenant verification confirmed that the browser login creates an ASP.NET cookie
+API code. Earlier tenant verification confirmed that the browser login creates an ASP.NET cookie
 session and does not return an API bearer token. Direct V2 API use requires the tenant API
 URL and the separately issued location API code in the `Authorization` header.

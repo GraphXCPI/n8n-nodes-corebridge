@@ -7,8 +7,9 @@ import type {
 	INodeType,
 	INodeTypeDescription,
 } from 'n8n-workflow';
-import { NodeApiError, NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
+import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 import { joinCorebridgeUrl } from './CorebridgeUrl';
+import { corebridgeRequestError } from './CorebridgeErrors';
 
 type CorebridgeCredentials = {
 	baseUrl: string;
@@ -136,6 +137,7 @@ export class CorebridgeApiRequest implements INodeType {
 		const credentials = (await this.getCredentials('corebridgeApi')) as CorebridgeCredentials;
 
 		for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
+			let requestStarted = false;
 			try {
 				const method = this.getNodeParameter('method', itemIndex) as IHttpRequestMethods;
 				const path = this.getNodeParameter('path', itemIndex) as string;
@@ -151,26 +153,29 @@ export class CorebridgeApiRequest implements INodeType {
 
 				if (['PATCH', 'POST', 'PUT'].includes(method)) {
 					try {
-						requestOptions.body = JSON.parse(this.getNodeParameter('jsonBody', itemIndex, '{}') as string) as IDataObject;
-					} catch (error) {
-						throw new NodeOperationError(this.getNode(), `Invalid JSON body: ${(error as Error).message}`, { itemIndex });
+						const value = this.getNodeParameter('jsonBody', itemIndex, '{}');
+						requestOptions.body = (typeof value === 'string' ? JSON.parse(value) : value) as IDataObject;
+					} catch {
+						throw new NodeOperationError(this.getNode(), 'Invalid JSON body. Supply valid JSON or an object expression.', { itemIndex });
 					}
 				}
 
+				requestStarted = true;
 				const response = await this.helpers.httpRequestWithAuthentication.call(this, 'corebridgeApi', requestOptions);
 				returnData.push({
-					json: typeof response === 'object' && response !== null ? (response as IDataObject) : { data: response as string },
+					json: Array.isArray(response) ? { data: response as IDataObject[] } : typeof response === 'object' && response !== null ? (response as IDataObject) : { data: response as string },
 					pairedItem: {
 						item: itemIndex,
 					},
 				});
 			} catch (error) {
+				const safeError = !requestStarted && error instanceof NodeOperationError ? error : corebridgeRequestError(error, this.getNode(), itemIndex, 'custom API request');
 				if (!this.continueOnFail()) {
-					throw new NodeApiError(this.getNode(), { message: (error as Error).message }, { itemIndex });
+					throw safeError;
 				}
 
 				returnData.push({
-					json: { error: (error as Error).message },
+					json: { error: safeError.message },
 					pairedItem: {
 						item: itemIndex,
 					},
